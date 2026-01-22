@@ -3,261 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRAN ZERO HOUR // LIVE MONITOR</title>
+    <title>IRAN ZERO HOUR | Tactical Intelligence Feed</title>
     <style>
         :root {
-            --bg: #FFFFFF;
-            --ink: #000000;
-            --alert: #FF0000;
-            --warn: #FFA500;
-            --border-thick: 3px solid var(--ink);
-            --border-thin: 1px solid var(--ink);
-            --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            --bg-color: #05070a;
+            --container-bg: #0d1117;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-dim: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-red: #f85149;
+            --accent-gold: #d29922;
+            --accent-green: #238636;
         }
 
-        [data-theme="dark"] {
-            --bg: #050505;
-            --ink: #E0E0E0;
-            --alert: #FF3333;
-            --warn: #DDAA00;
-        }
-
-        * { box-sizing: border-box; }
         body {
-            background-color: var(--bg);
-            color: var(--ink);
-            font-family: var(--font-mono);
-            margin: 0;
-            padding: 0;
-            line-height: 1.4;
-            transition: background 0.3s, color 0.3s;
-            overflow-x: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column;
+            align-items: center; min-height: 100vh;
         }
 
-        .wrapper {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        /* Scanline CRT Effect */
+        body::before {
+            content: " "; display: block; position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999; pointer-events: none;
+            background-size: 100% 2px, 3px 100%;
         }
 
         header {
-            border-bottom: var(--border-thick);
-            padding: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            width: 100%; max-width: 1000px; padding: 20px;
+            border-bottom: 2px solid var(--accent-green);
+            display: flex; justify-content: space-between;
+            align-items: center; box-sizing: border-box;
         }
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 900;
-            letter-spacing: -1px;
-            margin: 0;
-            text-transform: uppercase;
-            line-height: 1;
+        .project-title {
+            font-size: 1.5rem; letter-spacing: 4px;
+            font-weight: bold; color: #fff; margin: 0;
         }
 
-        .subtitle { font-size: 0.8rem; opacity: 0.7; margin-top: 5px; display: block; }
-        
-        .status-block { text-align: right; }
-        #clock { font-size: 1.5rem; font-weight: 700; letter-spacing: -1px; }
-        .live-dot { width: 8px; height: 8px; background: var(--alert); border-radius: 50%; display: inline-block; animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 450px;
-            flex-grow: 1;
+        #system-clock {
+            font-family: monospace; color: var(--accent-green);
+            font-size: 1.1rem; letter-spacing: 1px;
         }
 
-        .feed-container { 
-            padding: 40px 24px; 
-            position: relative; 
-            border-right: var(--border-thick);
-        }
-        .timeline-line { position: absolute; left: 29px; top: 0; bottom: 0; width: 1px; background: var(--ink); opacity: 0.2; }
-        
-        .event { position: relative; margin-bottom: 30px; padding-left: 30px; display: flex; flex-direction: column; }
-        .event::before { content: ''; position: absolute; left: 0; top: 8px; width: 10px; height: 2px; background: var(--ink); }
-        .event:hover::before { width: 20px; background: var(--alert); transition: width 0.2s; }
-        
-        .meta { font-size: 0.75rem; font-weight: 700; margin-bottom: 6px; display: flex; gap: 8px; align-items: center; }
-        .tag { padding: 1px 4px; border: 1px solid var(--ink); font-size: 0.65rem; text-transform: uppercase; }
-        
-        .headline { 
-            font-size: 0.95rem; 
-            text-transform: none; 
-            font-weight: 500;
-            max-width: 600px;
+        main { width: 100%; max-width: 1000px; padding: 20px; box-sizing: border-box; }
+
+        .tactical-entry {
+            background: var(--container-bg); border: 1px solid var(--border-color);
+            margin-bottom: 25px; padding: 20px; border-radius: 4px;
+            border-left: 4px solid var(--accent-green);
         }
 
-        .event.flash .headline { color: var(--alert); font-weight: bold; }
-        .event.flash .tag { background: var(--alert); color: var(--bg); border-color: var(--alert); }
-        .event.elevated .headline { color: var(--warn); }
-        
-        .global-targets {
-            padding: 40px 24px;
-            background: rgba(125, 125, 125, 0.03);
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; font-family: monospace;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
         }
 
-        .target-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            border-bottom: var(--border-thin);
-            padding-bottom: 15px;
+        .datetime { color: var(--text-dim); font-size: 0.9rem; }
+        .location-tag { color: var(--accent-blue); font-weight: bold; text-transform: uppercase; }
+        .severity-badge { padding: 3px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 2px; }
+        .FLASH { background: var(--accent-red); color: white; }
+        .WARNING { background: var(--accent-gold); color: black; }
+
+        .intel-body { line-height: 1.6; font-size: 1rem; margin-bottom: 20px; color: #e6edf3; }
+
+        .strategic-analysis {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 0.85rem;
         }
 
-        .globe-icon {
-            width: 40px;
-            height: 40px;
-            border: 2px solid var(--ink);
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            font-size: 1.2rem;
-        }
+        .iran-impact strong { color: var(--accent-red); display: block; margin-bottom: 5px; }
+        .opposition-impact strong { color: var(--accent-blue); display: block; margin-bottom: 5px; }
 
-        .target-list { list-style: none; padding: 0; margin: 0; }
-        .target-item { margin-bottom: 25px; border-left: 2px solid var(--ink); padding-left: 15px; }
-        .target-num { font-size: 0.7rem; font-weight: 900; opacity: 0.5; display: block; margin-bottom: 5px; }
-        .target-text-en { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
-        .target-text-fa { font-size: 0.85rem; opacity: 0.8; font-family: Tahoma, 'Arial', sans-serif; direction: rtl; display: block; }
-
-        footer { border-top: var(--border-thick); padding: 15px 24px; font-size: 0.7rem; opacity: 0.6; display: flex; justify-content: space-between; }
-        
-        .theme-btn { background: none; border: 1px solid var(--ink); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 0.7rem; padding: 4px 8px; margin-top: 8px; text-transform: uppercase; }
-        .theme-btn:hover { background: var(--ink); color: var(--bg); }
-
-        @media (max-width: 800px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .feed-container { border-right: none; border-bottom: var(--border-thick); }
-        }
+        footer { margin-top: auto; padding: 40px; font-size: 0.7rem; color: var(--text-dim); text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="wrapper">
-    <header>
-        <div>
-            <h1>Iran Zero Hour</h1>
-            <span class="subtitle">REGIME DESTABILIZATION TRACKER</span>
-        </div>
-        <div class="status-block">
-            <div id="clock">00:00 UTC</div>
-            <div style="font-size: 0.75rem; margin-top: 5px; font-weight: bold;">
-                <span class="live-dot"></span> LIVE MONITOR
-            </div>
-            <button class="theme-btn" onclick="toggleTheme()">Invert Colors</button>
-        </div>
-    </header>
-
-    <div class="main-grid">
-        <div class="feed-container">
-            <div class="timeline-line"></div>
-            <div id="feed"></div>
-        </div>
-
-        <div class="global-targets">
-            <div class="target-header">
-                <div class="globe-icon">🌐</div>
-                <div>
-                    <div style="font-weight: 900; text-transform: uppercase;">Global Directive</div>
-                    <div style="font-size: 0.7rem; opacity: 0.7;">Action Required</div>
-                </div>
-            </div>
-
-            <ul class="target-list">
-                <li class="target-item">
-                    <span class="target-num">01 // TARGET IRGC</span>
-                    <span class="target-text-en">Cripple the Suppression Machine</span>
-                    <span class="target-text-fa">تضعیف ماشین سرکوب، به‌ویژه هدف‌گیری سپاه پاسداران</span>
-                </li>
-                <li class="target-item">
-                    <span class="target-num">02 // ECONOMIC BLOCKADE</span>
-                    <span class="target-text-en">Freeze Assets & Block Oil Tankers</span>
-                    <span class="target-text-fa">فشار اقتصادی حداکثری با مسدود کردن دارایی‌های رژیم و ناوگان نفت‌کش‌هایش</span>
-                </li>
-                <li class="target-item">
-                    <span class="target-num">03 // OPEN COMMS</span>
-                    <span class="target-text-en">Unrestricted Internet (Starlink)</span>
-                    <span class="target-text-fa">فراهم‌ کردن اینترنت آزاد برای ایران از طریق ابزارهایی مانند استارلینک</span>
-                </li>
-                <li class="target-item">
-                    <span class="target-num">04 // DIPLOMATIC ISOLATION</span>
-                    <span class="target-text-en">Expel Diplomats & Prosecute Criminals</span>
-                    <span class="target-text-fa">اخراج دیپلمات‌های رژیم و پیگرد قانونی جنایتکاران</span>
-                </li>
-                <li class="target-item">
-                    <span class="target-num">05 // HUMAN RIGHTS</span>
-                    <span class="target-text-en">Unconditional Release of Prisoners</span>
-                    <span class="target-text-fa">آزادی بی‌قیدوشرط همه زندانیان سیاسی</span>
-                </li>
-                <li class="target-item">
-                    <span class="target-num">06 // REGIME CHANGE</span>
-                    <span class="target-text-en">Recognize Transitional Government</span>
-                    <span class="target-text-fa">آمادگی برای گذار دموکراتیک و به رسمیت شناختن دولت انتقالی</span>
-                </li>
-            </ul>
-        </div>
+<header>
+    <div>
+        <div class="project-title">IRAN ZERO HOUR</div>
+        <div style="font-size: 0.7rem; color: var(--accent-green)">SECURE_COMM_ESTABLISHED // OSINT_FEED</div>
     </div>
+    <div id="system-clock">0000-00-00 00:00:00</div>
+</header>
 
-    <footer>
-        <span>SECURE CONNECTION</span>
-        <span>NO TRACKING</span>
-    </footer>
-</div>
+<main id="intel-container">
+    {content}
+    </main>
 
-<script id="data-core">
-    const timelineData = [{"time": "23:00 UTC", "text": "[ROUTINE] Between Conciliation and Coercion in Ukraine Policy"}, {"time": "23:00 UTC", "text": "[ROUTINE] The US-Israel Hybrid War Against Iran"}, {"time": "23:00 UTC", "text": "[ROUTINE] Trump Mulls Attacks On Iran And Greenland"}, {"time": "23:00 UTC", "text": "[ROUTINE] Trump\u2019s Dizzying First Year"}, {"time": "22:56 UTC", "text": "[ROUTINE] Zelenskyy to Meet Trump in Davos as Ukraine Peace Talks Intensify"}, {"time": "22:11 UTC", "text": "[ROUTINE] Strike on Iran? Former National Security Adviser doubts it"}];
-</script>
+<footer>
+    &copy; 2026 PROJECT IRAN ZERO HOUR | SYSTEM_STABLE // NO_LEAKS_DETECTED
+</footer>
 
 <script>
-    function toggleTheme() {
-        const body = document.body;
-        const current = body.getAttribute('data-theme');
-        body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-    }
-
     function updateClock() {
         const now = new Date();
-        const utc = now.toUTCString().slice(17, 22);
-        document.getElementById('clock').innerText = utc + ' UTC';
+        const pad = (num) => String(num).padStart(2, '0');
+        
+        const date = now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
+        const time = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+        
+        document.getElementById('system-clock').textContent = date + " " + time;
     }
     setInterval(updateClock, 1000);
-    updateClock();
-
-    function renderFeed() {
-        const container = document.getElementById('feed');
-        if (!timelineData || timelineData.length === 0) {
-            container.innerHTML = '<div class="event"><span class="headline">AWAITING SIGNAL...</span></div>';
-            return;
-        }
-
-        container.innerHTML = timelineData.map(item => {
-            const match = item.text.match(/^\[(.*?)\]\s*(.*)/);
-            const tag = match ? match[1] : 'UNK';
-            const headline = match ? match[2] : item.text;
-            
-            let urgency = 'routine';
-            if (tag.includes('FLASH') || tag.includes('ALERT') || tag.includes('STRIKE')) urgency = 'flash';
-            if (tag.includes('WARNING') || tag.includes('THREAT')) urgency = 'elevated';
-
-            return `
-                <div class="event ${urgency}">
-                    <div class="meta">
-                        <span>${item.time}</span>
-                        <span class="tag">${tag}</span>
-                    </div>
-                    <div class="headline">${headline}</div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    window.onload = renderFeed;
+    updateClock(); // Initial call
 </script>
 
 </body>
