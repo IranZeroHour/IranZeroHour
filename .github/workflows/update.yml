@@ -21,7 +21,7 @@ jobs:
           python-version: '3.10'
 
       - name: Load Modules
-        run: pip install requests openai
+        run: pip install requests google-generativeai
 
       - name: Execute Logic
         env:
