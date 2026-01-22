@@ -1,94 +1,78 @@
 import os
-import json
-import requests
-import re
-import google.generativeai as genai
+import yaml
+from google import genai
+from google.genai import types
 
-# --- CONFIGURATION ---
-# Secrets are injected via GitHub Actions (see update.yml)
-NEWS_SOURCE = os.environ.get("NEWS")
-AI_ENGINE = os.environ.get("AI")
-SEARCH_BASE = os.environ.get("QUERY")  # Now strictly from secrets
-SYSTEM_PROMPT = os.environ.get("SYSTEM") # Now strictly from secrets
-TARGET_FILE = "index.html"
+def load_config():
+    with open("config.yaml", "r") as f:
+        return yaml.safe_load(f)
 
-def get_input():
-    print("Acquiring intelligence signals...")
-    if not NEWS_SOURCE or not SEARCH_BASE:
-        print("Signal lost: Missing configuration (NEWS or QUERY).")
-        return []
-        
-    headers = {'User-Agent': 'ZeroHour/2.0 (IntelOps)'}
+def fetch_intel(config):
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
     
-    # The QUERY secret should contain the full boolean logic:
-    # e.g., "Iran AND (military OR IRGC OR nuclear OR missile OR strike OR army)"
-    url = f"https://newsapi.org/v2/everything?q={SEARCH_BASE}&sortBy=publishedAt&pageSize=15&language=en&apiKey={NEWS_SOURCE}"
-    
-    try:
-        response = requests.get(url, headers=headers)
-        data = response.json()
-        return data.get('articles', [])
-    except Exception as e:
-        print(f"Connection failed: {e}")
-        return []
+    # System Instruction from your refined prompt
+    system_instr = f"""ACT AS: Senior Watch Officer & Intelligence Analyst. 
+    PROJECT: {config['project_name']}
+    TASK: Monitor live data for 'Hard Security' events occurring strictly within the last 15 minutes. 
+    STYLE: LiveUAMap Tactical Feed + High-Level Geopolitical Analysis.
+    FORMATTING: Return ONLY raw HTML <div> blocks using the tactical-entry class."""
 
-def process_data(raw_data):
-    print("Synthesizing tactical report (Gemini Core)...")
-    if not raw_data: return []
-    if not SYSTEM_PROMPT:
-        print("CRITICAL: System instruction secret (SYSTEM) is missing.")
-        return []
-    
-    try:
-        genai.configure(api_key=AI_ENGINE)
-        model = genai.GenerativeModel('gemini-pro')
-        
-        feed_content = "\n".join([f"- {a['title']} (Source: {a['source']['name']})" for a in raw_data])
-        
-        # The prompt logic is now hidden in your GitHub Secret "SYSTEM"
-        response = model.generate_content(f"{SYSTEM_PROMPT}\n\nRAW INTEL:\n{feed_content}")
-        
-        clean_text = response.text.replace("```json", "").replace("```", "").strip()
-        return json.loads(clean_text)
-        
-    except Exception as e:
-        print(f"Analysis failed (Fallback Mode): {e}")
-        return [f"[ROUTINE] {a['title']}" for a in raw_data[:6]]
+    contents = [
+        types.Content(
+            role="user",
+            parts=[types.Part.from_text("Generate the latest tactical report for the Iran sector.")],
+        ),
+    ]
 
-def update_display(processed_data, raw_data):
-    print("Updating dashboard...")
-    output = []
-    
-    for i, text in enumerate(processed_data):
-        if i < len(raw_data):
-            t_raw = raw_data[i]['publishedAt']
-            time_stamp = t_raw.split('T')[1][:5] + " UTC"
-            output.append({"time": time_stamp, "text": text})
+    generate_config = types.GenerateContentConfig(
+        tools=[types.Tool(googleSearch=types.GoogleSearch())],
+        system_instruction=system_instr,
+        thinking_config=types.ThinkingConfig(thinking_level="HIGH")
+    )
 
-    with open(TARGET_FILE, 'r', encoding='utf-8') as f:
-        html = f.read()
+    response = client.models.generate_content(
+        model="gemini-2.0-flash-thinking-exp", 
+        contents=contents, 
+        config=generate_config
+    )
+    return response.text
 
-    js_payload = f'\n    const timelineData = {json.dumps(output)};\n'
-    
-    pattern = r'(<script id="data-core">)([\s\S]*?)(</script>)'
-    
-    if re.search(pattern, html):
-        new_html = re.sub(
-            pattern, 
-            lambda m: m.group(1) + js_payload + m.group(3), 
-            html
-        )
-        
-        with open(TARGET_FILE, 'w', encoding='utf-8') as f:
-            f.write(new_html)
-        print("Dashboard updated successfully.")
-    else:
-        print("CRITICAL ERROR: Injection anchor <script id='data-core'> not found.")
+def bake_site(content, config):
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{config['project_name']} | Tactical Dashboard</title>
+        <style>
+            body {{ background: #06080a; color: #c9d1d9; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; }}
+            .sidebar {{ border-left: 2px solid #238636; padding-left: 20px; max-width: 800px; margin: auto; }}
+            h1 {{ color: #ffffff; border-bottom: 1px solid #30363d; padding-bottom: 10px; font-weight: 300; letter-spacing: 2px; }}
+            .tactical-entry {{ background: #0d1117; border: 1px solid #30363d; padding: 20px; margin-bottom: 15px; border-radius: 6px; }}
+            .header {{ display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 12px; font-family: monospace; }}
+            .datetime {{ color: #8b949e; }}
+            .location-tag {{ color: #58a6ff; font-weight: bold; }}
+            .severity-badge {{ padding: 2px 8px; border-radius: 2px; text-transform: uppercase; font-size: 0.9em; }}
+            .FLASH {{ background: #da3633; color: #fff; }}
+            .WARNING {{ background: #d29922; color: #000; }}
+            .intel-body {{ line-height: 1.6; margin-bottom: 15px; border-left: 3px solid #30363d; padding-left: 15px; }}
+            .strategic-analysis {{ font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 15px; border-top: 1px solid #21262d; }}
+            .iran-impact strong {{ color: #f85149; }}
+            .opposition-impact strong {{ color: #58a6ff; }}
+        </style>
+    </head>
+    <body>
+        <h1>{config['project_name']} // OSINT_FEED</h1>
+        <div class="sidebar">
+            {content}
+        </div>
+    </body>
+    </html>
+    """
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html_template)
 
 if __name__ == "__main__":
-    raw_intel = get_input()
-    if raw_intel:
-        tactical_summary = process_data(raw_intel)
-        update_display(tactical_summary, raw_intel)
-    else:
-        print("No intel sources available.")
+    cfg = load_config()
+    intel = fetch_intel(cfg)
+    bake_site(intel, cfg)
