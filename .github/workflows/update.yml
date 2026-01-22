@@ -36,7 +36,6 @@ jobs:
           git config --global user.name "System"
           git config --global user.email "sys@local"
           git add index.html
-          # Check for changes before attempting push
           if ! git diff --quiet --staged; then
             git commit -m "STATE UPDATE: $(date -u)"
             git pull --rebase origin main
