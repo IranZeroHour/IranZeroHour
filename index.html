@@ -82,15 +82,20 @@
         .event::before { content: ''; position: absolute; left: 0; top: 8px; width: 10px; height: 2px; background: var(--ink); }
         .event:hover::before { width: 20px; background: var(--alert); transition: width 0.2s; }
         
-        .meta { font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+        .meta { font-size: 0.75rem; font-weight: 700; margin-bottom: 6px; display: flex; gap: 8px; align-items: center; }
         .tag { padding: 1px 4px; border: 1px solid var(--ink); font-size: 0.65rem; text-transform: uppercase; }
-        .headline { font-size: 1rem; text-transform: uppercase; }
+        
+        .headline { 
+            font-size: 0.95rem; 
+            text-transform: none; 
+            font-weight: 500;
+            max-width: 600px;
+        }
 
         .event.flash .headline { color: var(--alert); font-weight: bold; }
         .event.flash .tag { background: var(--alert); color: var(--bg); border-color: var(--alert); }
         .event.elevated .headline { color: var(--warn); }
-        .event.routine .headline { opacity: 0.8; }
-
+        
         .global-targets {
             padding: 40px 24px;
             background: rgba(125, 125, 125, 0.03);
@@ -115,41 +120,11 @@
             font-size: 1.2rem;
         }
 
-        .target-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .target-item {
-            margin-bottom: 25px;
-            border-left: 2px solid var(--ink);
-            padding-left: 15px;
-        }
-
-        .target-num {
-            font-size: 0.7rem;
-            font-weight: 900;
-            opacity: 0.5;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .target-text-en {
-            font-size: 0.9rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .target-text-fa {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            font-family: Tahoma, 'Arial', sans-serif;
-            direction: rtl;
-            display: block;
-        }
+        .target-list { list-style: none; padding: 0; margin: 0; }
+        .target-item { margin-bottom: 25px; border-left: 2px solid var(--ink); padding-left: 15px; }
+        .target-num { font-size: 0.7rem; font-weight: 900; opacity: 0.5; display: block; margin-bottom: 5px; }
+        .target-text-en { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .target-text-fa { font-size: 0.85rem; opacity: 0.8; font-family: Tahoma, 'Arial', sans-serif; direction: rtl; display: block; }
 
         footer { border-top: var(--border-thick); padding: 15px 24px; font-size: 0.7rem; opacity: 0.6; display: flex; justify-content: space-between; }
         
@@ -236,7 +211,7 @@
 </div>
 
 <script id="data-core">
-    const timelineData = [{"time": "22:11 UTC", "text": "[ROUTINE] STRIKE ON IRAN? FORMER NATIONAL SECURITY ADVISER DOUBTS IT"}, {"time": "22:05 UTC", "text": "[ROUTINE] TOP FIVE TAKEAWAYS FROM TRUMP'S INTERVIEW WITH CNBC"}, {"time": "22:00 UTC", "text": "[ROUTINE] HOW VENEZUELA WENT FROM U.S. ALLY TO NATIONAL SECURITY THREAT"}, {"time": "22:00 UTC", "text": "[ROUTINE] THE FASTEST WAY TO STOP IRAN\u2019S KILLERS ... WITHOUT FIRING A SINGLE SHOT"}, {"time": "21:48 UTC", "text": "[ROUTINE] IRANIAN FOREIGN MINISTER CLAIMS ISRAELI SPIES INCITED \u2018MAXIMUM BLOODSHED\u2019 DURING PROTESTS TO GET THE US INVOLVED"}, {"time": "21:46 UTC", "text": "[ROUTINE] IRAN SAYS 3,117 KILLED IN PROTESTS"}];
+    const timelineData = [];
 </script>
 
 <script>
@@ -267,7 +242,7 @@
             const headline = match ? match[2] : item.text;
             
             let urgency = 'routine';
-            if (tag.includes('ALERT') || tag.includes('WAR') || tag.includes('STRIKE')) urgency = 'flash';
+            if (tag.includes('FLASH') || tag.includes('ALERT') || tag.includes('STRIKE')) urgency = 'flash';
             if (tag.includes('WARNING') || tag.includes('THREAT')) urgency = 'elevated';
 
             return `
