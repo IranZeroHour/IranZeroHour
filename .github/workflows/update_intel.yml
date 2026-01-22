@@ -1,12 +1,14 @@
 name: Update Tactical Feed
 on:
   schedule:
-    - cron: '*/15 * * * *' # Runs every 15 minutes
-  workflow_dispatch:      # Allows manual trigger
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # This line grants the permission to push changes
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
