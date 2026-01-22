@@ -6,8 +6,8 @@ from openai import OpenAI
 
 # --- ONFIGURATION  ---
 
-NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
-AI_API_KEY = os.environ.get("AI_API_KEY")
+NEWS_API_KEY = os.environ.get("NEWS")
+AI_API_KEY = os.environ.get("AI")
 TARGET_QUERY = os.environ.get("TARGET_QUERY")     
 SYSTEM_PROMPT = os.environ.get("SYSTEM_PROMPT")   
 TARGET_FILE = "index.html"
