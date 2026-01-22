@@ -1,0 +1,32 @@
+# ==========================================
+# PROJECT IRAN ZERO HOUR - CONFIGURATION
+# ==========================================
+
+project:
+  name: "IRAN ZERO HOUR"
+  version: "1.0.4"
+  security_level: "UNCLASSIFIED//OSINT"
+  description: "Real-time tactical monitoring of the Iran sector."
+
+ai_parameters:
+  model: "gemini-3-flash-preview"
+  thinking_level: "HIGH"
+  sector_focus: "Middle East / Iran"
+  time_window_minutes: 15
+  
+output_settings:
+  file_name: "index.html"
+  refresh_interval_sec: 900  # 15 minutes
+  max_entries: 10            # Limits the UI height
+
+style_config:
+  theme: "dark-tactical"
+  accent_primary: "#238636"  # Tactical Green
+  accent_alert: "#f85149"    # Flash Red
+  accent_warning: "#d29922"  # Warning Gold
+  enable_scanlines: true
+
+# Metadata for Python script handling
+metadata:
+  last_updated: "2026-01-23"
+  author: "Senior Intelligence Analyst"
