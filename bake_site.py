@@ -1,122 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRAN ZERO HOUR | Tactical Intelligence Feed</title>
-    <style>
-        :root {
-            --bg-color: #05070a;
-            --container-bg: #0d1117;
-            --border-color: #30363d;
-            --text-main: #c9d1d9;
-            --text-dim: #8b949e;
-            --accent-blue: #58a6ff;
-            --accent-red: #f85149;
-            --accent-gold: #d29922;
-            --accent-green: #238636;
-        }
+import os
+import yaml
+from google import genai
+from google.genai import types
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', 'Courier New', monospace;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column;
-            align-items: center; min-height: 100vh;
-        }
+def load_config():
+    with open("config.yaml", "r") as f:
+        return yaml.safe_load(f)
 
-        /* Scanline CRT Effect */
-        body::before {
-            content: " "; display: block; position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 9999; pointer-events: none;
-            background-size: 100% 2px, 3px 100%;
-        }
+def fetch_intel(config):
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    
+    # System Instruction from your refined prompt
+    system_instr = f"""ACT AS: Senior Watch Officer & Intelligence Analyst. 
+    PROJECT: {config['project_name']}
+    TASK: Monitor live data for 'Hard Security' events occurring strictly within the last 15 minutes. 
+    STYLE: LiveUAMap Tactical Feed + High-Level Geopolitical Analysis.
+    FORMATTING: Return ONLY raw HTML <div> blocks using the tactical-entry class."""
 
-        header {
-            width: 100%; max-width: 1000px; padding: 20px;
-            border-bottom: 2px solid var(--accent-green);
-            display: flex; justify-content: space-between;
-            align-items: center; box-sizing: border-box;
-        }
+    contents = [
+        types.Content(
+            role="user",
+            parts=[types.Part.from_text("Generate the latest tactical report for the Iran sector.")],
+        ),
+    ]
 
-        .project-title {
-            font-size: 1.5rem; letter-spacing: 4px;
-            font-weight: bold; color: #fff; margin: 0;
-        }
+    generate_config = types.GenerateContentConfig(
+        tools=[types.Tool(googleSearch=types.GoogleSearch())],
+        system_instruction=system_instr,
+        thinking_config=types.ThinkingConfig(thinking_level="HIGH")
+    )
 
-        #system-clock {
-            font-family: monospace; color: var(--accent-green);
-            font-size: 1.1rem; letter-spacing: 1px;
-        }
+    response = client.models.generate_content(
+        model="gemini-2.0-flash-thinking-exp", 
+        contents=contents, 
+        config=generate_config
+    )
+    return response.text
 
-        main { width: 100%; max-width: 1000px; padding: 20px; box-sizing: border-box; }
+def bake_site(content, config):
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{config['project_name']} | Tactical Dashboard</title>
+        <style>
+            body {{ background: #06080a; color: #c9d1d9; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; }}
+            .sidebar {{ border-left: 2px solid #238636; padding-left: 20px; max-width: 800px; margin: auto; }}
+            h1 {{ color: #ffffff; border-bottom: 1px solid #30363d; padding-bottom: 10px; font-weight: 300; letter-spacing: 2px; }}
+            .tactical-entry {{ background: #0d1117; border: 1px solid #30363d; padding: 20px; margin-bottom: 15px; border-radius: 6px; }}
+            .header {{ display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 12px; font-family: monospace; }}
+            .datetime {{ color: #8b949e; }}
+            .location-tag {{ color: #58a6ff; font-weight: bold; }}
+            .severity-badge {{ padding: 2px 8px; border-radius: 2px; text-transform: uppercase; font-size: 0.9em; }}
+            .FLASH {{ background: #da3633; color: #fff; }}
+            .WARNING {{ background: #d29922; color: #000; }}
+            .intel-body {{ line-height: 1.6; margin-bottom: 15px; border-left: 3px solid #30363d; padding-left: 15px; }}
+            .strategic-analysis {{ font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 15px; border-top: 1px solid #21262d; }}
+            .iran-impact strong {{ color: #f85149; }}
+            .opposition-impact strong {{ color: #58a6ff; }}
+        </style>
+    </head>
+    <body>
+        <h1>{config['project_name']} // OSINT_FEED</h1>
+        <div class="sidebar">
+            {content}
+        </div>
+    </body>
+    </html>
+    """
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html_template)
 
-        .tactical-entry {
-            background: var(--container-bg); border: 1px solid var(--border-color);
-            margin-bottom: 25px; padding: 20px; border-radius: 4px;
-            border-left: 4px solid var(--accent-green);
-        }
-
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; font-family: monospace;
-            border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
-        }
-
-        .datetime { color: var(--text-dim); font-size: 0.9rem; }
-        .location-tag { color: var(--accent-blue); font-weight: bold; text-transform: uppercase; }
-        .severity-badge { padding: 3px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 2px; }
-        .FLASH { background: var(--accent-red); color: white; }
-        .WARNING { background: var(--accent-gold); color: black; }
-
-        .intel-body { line-height: 1.6; font-size: 1rem; margin-bottom: 20px; color: #e6edf3; }
-
-        .strategic-analysis {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-            padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 0.85rem;
-        }
-
-        .iran-impact strong { color: var(--accent-red); display: block; margin-bottom: 5px; }
-        .opposition-impact strong { color: var(--accent-blue); display: block; margin-bottom: 5px; }
-
-        footer { margin-top: auto; padding: 40px; font-size: 0.7rem; color: var(--text-dim); text-align: center; }
-    </style>
-</head>
-<body>
-
-<header>
-    <div>
-        <div class="project-title">IRAN ZERO HOUR</div>
-        <div style="font-size: 0.7rem; color: var(--accent-green)">SECURE_COMM_ESTABLISHED // OSINT_FEED</div>
-    </div>
-    <div id="system-clock">0000-00-00 00:00:00</div>
-</header>
-
-<main id="intel-container">
-    {content}
-    </main>
-
-<footer>
-    &copy; 2026 PROJECT IRAN ZERO HOUR | SYSTEM_STABLE // NO_LEAKS_DETECTED
-</footer>
-
-<script>
-    function updateClock() {
-        const now = new Date();
-        const pad = (num) => String(num).padStart(2, '0');
-        
-        const date = now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
-        const time = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-        
-        document.getElementById('system-clock').textContent = date + " " + time;
-    }
-    setInterval(updateClock, 1000);
-    updateClock(); // Initial call
-</script>
-
-</body>
-</html>
+if __name__ == "__main__":
+    cfg = load_config()
+    intel = fetch_intel(cfg)
+    bake_site(intel, cfg)
