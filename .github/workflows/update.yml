@@ -1,0 +1,38 @@
+name: Iran Zero Hour Update
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Runs every 30 minutes to save API costs
+  workflow_dispatch:       # Allows manual click-to-run
+
+permissions:
+  contents: write
+
+jobs:
+  intel-briefing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Libraries
+        run: pip install requests openai
+
+      - name: Run Intelligence Script
+        env:
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python bake_site.py
+
+      - name: Deploy Update
+        run: |
+          git config --global user.name "ZeroHourBot"
+          git config --global user.email "bot@zerohour.local"
+          git add index.html
+          # Only commit if the file actually changed
+          git diff --quiet && git diff --staged --quiet || (git commit -m "INTEL UPDATE: $(date -u)" && git push)
