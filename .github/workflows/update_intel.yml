@@ -18,7 +18,7 @@ jobs:
       - name: Run Bake Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python Bake_site.py
+        run: python bake_site.py
       - name: Commit and Push
         run: |
           git config --global user.name "Intelligence-Bot"
