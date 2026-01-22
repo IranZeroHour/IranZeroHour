@@ -8,8 +8,8 @@ from openai import OpenAI
 
 NEWS_API_KEY = os.environ.get("NEWS")
 AI_API_KEY = os.environ.get("AI")
-TARGET_QUERY = os.environ.get("TARGET_QUERY")     
-SYSTEM_PROMPT = os.environ.get("SYSTEM_PROMPT")   
+TARGET_QUERY = os.environ.get("TARGET")     
+SYSTEM_PROMPT = os.environ.get("SYSTEM")   
 TARGET_FILE = "index.html"
 
 def fetch_intel():
