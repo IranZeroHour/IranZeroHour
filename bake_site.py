@@ -4,68 +4,63 @@ import requests
 import re
 from openai import OpenAI
 
-# --- ONFIGURATION  ---
-
-NEWS_API_KEY = os.environ.get("NEWS")
-AI_API_KEY = os.environ.get("AI")
-TARGET_QUERY = os.environ.get("TARGET")     
-SYSTEM_PROMPT = os.environ.get("SYSTEM")   
+NEWS_SOURCE = os.environ.get("NEWS")     
+AI_ENGINE = os.environ.get("AI")        
+SEARCH_TERM = os.environ.get("QUERY")    
+INSTRUCTION = os.environ.get("SYSTEM")   
 TARGET_FILE = "index.html"
 
-def fetch_intel():
-    print("Fetching data from source...")
-    if not TARGET_QUERY or not NEWS_API_KEY:
-        print("Error: Missing Query or API Key.")
+def get_input():
+    print("Acquiring signal...")
+    if not SEARCH_TERM or not NEWS_SOURCE:
+        print("Signal lost: Missing configuration.")
         return []
         
-    url = f"https://newsapi.org/v2/everything?q={TARGET_QUERY}&sortBy=publishedAt&pageSize=6&language=en&apiKey={NEWS_API_KEY}"
+    url = f"https://newsapi.org/v2/everything?q={SEARCH_TERM}&sortBy=publishedAt&pageSize=6&language=en&apiKey={NEWS_SOURCE}"
     try:
         response = requests.get(url)
         return response.json().get('articles', [])
     except Exception as e:
-        print(f"Fetch Error: {e}")
+        print(f"Connection failed: {e}")
         return []
 
-def process_intel(articles):
-    print("Processing via Neural Link...")
-    if not articles: return []
+def process_data(raw_data):
+    print("Analyzing pattern...")
+    if not raw_data: return []
     
-    client = OpenAI(api_key=OPENAI_API_KEY)
-    headlines = "\n".join([f"- {a['title']}" for a in articles])
+    client = OpenAI(api_key=AI_ENGINE)
+
+    data_block = "\n".join([f"- {a['title']}" for a in raw_data])
     
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": headlines}
+                {"role": "system", "content": INSTRUCTION},
+                {"role": "user", "content": data_block}
             ],
             temperature=0.1
         )
-        # Expecting JSON list
         content = response.choices[0].message.content
-        cleaned_content = content.replace("```json", "").replace("```", "").strip()
-        return json.loads(cleaned_content)
+        cleaned = content.replace("```json", "").replace("```", "").strip()
+        return json.loads(cleaned)
     except Exception as e:
-        print(f"AI Processing Error: {e}")
-        # Fallback if AI fails: Return raw titles tagged as routine
-        return [f"[ROUTINE] {a['title'].upper()}" for a in articles]
+        print(f"Analysis failed: {e}")
+        return [f"[ROUTINE] {a['title'].upper()}" for a in raw_data]
 
-def bake_dashboard(processed_data, raw_articles):
-    print("Baking static dashboard...")
-    final_output = []
+def update_display(processed_data, raw_data):
+    print("Updating display...")
+    output = []
     
-    # Merge AI text with Official Time
     for i, text in enumerate(processed_data):
-        if i < len(raw_articles):
-            time_utc = raw_articles[i]['publishedAt'].split('T')[1][:5] + " UTC"
-            final_output.append({"time": time_utc, "text": text})
+        if i < len(raw_data):
+            time_stamp = raw_data[i]['publishedAt'].split('T')[1][:5] + " UTC"
+            output.append({"time": time_stamp, "text": text})
 
-    # Injection
     with open(TARGET_FILE, 'r', encoding='utf-8') as f:
         html = f.read()
 
-    js_payload = "const timelineData = " + json.dumps(final_output) + ";"
+    js_payload = "const timelineData = " + json.dumps(output) + ";"
     pattern = r'(\s*<script>)([\s\S]*?)(</script>\s*)'
     new_html = re.sub(pattern, r'\1\n        ' + js_payload + r'\n        \3', html)
     
@@ -73,10 +68,10 @@ def bake_dashboard(processed_data, raw_articles):
         f.write(new_html)
 
 if __name__ == "__main__":
-    raw = fetch_intel()
+    raw = get_input()
     if raw:
-        processed = process_intel(raw)
-        bake_dashboard(processed, raw)
-        print("Update Complete.")
+        processed = process_data(raw)
+        update_display(processed, raw)
+        print("Sequence complete.")
     else:
-        print("No Intel Found.")
+        print("No input found.")
