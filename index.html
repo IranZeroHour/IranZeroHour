@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IRAN ZERO HOUR // LIVE MONITOR</title>
     <style>
-        /* --- CORE VARIABLES --- */
         :root {
             --bg: #FFFFFF;
             --ink: #000000;
@@ -16,7 +15,6 @@
             --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
         }
 
-        /* --- DARK MODE --- */
         [data-theme="dark"] {
             --bg: #050505;
             --ink: #E0E0E0;
@@ -24,7 +22,6 @@
             --warn: #DDAA00;
         }
 
-        /* --- RESET & BASE --- */
         * { box-sizing: border-box; }
         body {
             background-color: var(--bg);
@@ -37,10 +34,8 @@
             overflow-x: hidden;
         }
 
-        /* --- LAYOUT --- */
         .wrapper {
             width: 100%;
-            /* REMOVED MAX-WIDTH FOR FULL SCREEN */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -70,14 +65,12 @@
         .live-dot { width: 8px; height: 8px; background: var(--alert); border-radius: 50%; display: inline-block; animation: pulse 1s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
 
-        /* --- MAIN GRID --- */
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 450px; /* Feed gets remaining space, Sidebar gets 450px */
+            grid-template-columns: 1fr 450px;
             flex-grow: 1;
         }
 
-        /* --- FEED SECTION --- */
         .feed-container { 
             padding: 40px 24px; 
             position: relative; 
@@ -93,13 +86,11 @@
         .tag { padding: 1px 4px; border: 1px solid var(--ink); font-size: 0.65rem; text-transform: uppercase; }
         .headline { font-size: 1rem; text-transform: uppercase; }
 
-        /* Threat Colors */
         .event.flash .headline { color: var(--alert); font-weight: bold; }
         .event.flash .tag { background: var(--alert); color: var(--bg); border-color: var(--alert); }
         .event.elevated .headline { color: var(--warn); }
         .event.routine .headline { opacity: 0.8; }
 
-        /* --- GLOBAL TARGETS SIDEBAR --- */
         .global-targets {
             padding: 40px 24px;
             background: rgba(125, 125, 125, 0.03);
@@ -155,18 +146,16 @@
         .target-text-fa {
             font-size: 0.85rem;
             opacity: 0.8;
-            font-family: Tahoma, 'Arial', sans-serif; /* Better support for Persian script */
+            font-family: Tahoma, 'Arial', sans-serif;
             direction: rtl;
             display: block;
         }
 
         footer { border-top: var(--border-thick); padding: 15px 24px; font-size: 0.7rem; opacity: 0.6; display: flex; justify-content: space-between; }
         
-        /* Theme Toggle */
         .theme-btn { background: none; border: 1px solid var(--ink); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 0.7rem; padding: 4px 8px; margin-top: 8px; text-transform: uppercase; }
         .theme-btn:hover { background: var(--ink); color: var(--bg); }
 
-        /* Mobile Responsive */
         @media (max-width: 800px) {
             .main-grid { grid-template-columns: 1fr; }
             .feed-container { border-right: none; border-bottom: var(--border-thick); }
@@ -179,7 +168,7 @@
     <header>
         <div>
             <h1>Iran Zero Hour</h1>
-            <span class="subtitle">Static Intelligence Dashboard</span>
+            <span class="subtitle">REGIME DESTABILIZATION TRACKER</span>
         </div>
         <div class="status-block">
             <div id="clock">00:00 UTC</div>
@@ -251,14 +240,12 @@
 </script>
 
 <script>
-    // Theme Toggle
     function toggleTheme() {
         const body = document.body;
         const current = body.getAttribute('data-theme');
         body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
     }
 
-    // Clock
     function updateClock() {
         const now = new Date();
         const utc = now.toUTCString().slice(17, 22);
@@ -267,7 +254,6 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Render Feed
     function renderFeed() {
         const container = document.getElementById('feed');
         if (!timelineData || timelineData.length === 0) {
@@ -276,12 +262,10 @@
         }
 
         container.innerHTML = timelineData.map(item => {
-            // Parse Text: Expecting "[TAG] HEADLINE"
             const match = item.text.match(/^\[(.*?)\]\s*(.*)/);
             const tag = match ? match[1] : 'UNK';
             const headline = match ? match[2] : item.text;
             
-            // Determine Class
             let urgency = 'routine';
             if (tag.includes('ALERT') || tag.includes('WAR') || tag.includes('STRIKE')) urgency = 'flash';
             if (tag.includes('WARNING') || tag.includes('THREAT')) urgency = 'elevated';
@@ -298,7 +282,6 @@
         }).join('');
     }
 
-    // Init
     window.onload = renderFeed;
 </script>
 
