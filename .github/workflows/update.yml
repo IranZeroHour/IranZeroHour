@@ -1,18 +1,18 @@
-name: Iran Zero Hour Update
+name: Zero Hour Uplink
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # Runs every 30 minutes to save API costs
-  workflow_dispatch:       # Allows manual click-to-run
+    - cron: '*/30 * * * *' # Executes every 30 minutes
+  workflow_dispatch:       # Manual Trigger
 
 permissions:
   contents: write
 
 jobs:
-  intel-briefing:
+  secure-update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
+      - name: Initialize Environment
         uses: actions/checkout@v3
 
       - name: Setup Python
@@ -20,19 +20,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Libraries
+      - name: Install Dependencies
         run: pip install requests openai
 
-      - name: Run Intelligence Script
+      - name: Run Obfuscated Logic
         env:
-          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NEWS_API_KEY: ${{ secrets.NEWS }}
+          OPENAI_API_KEY: ${{ secrets.AI }}
+          TARGET_QUERY: ${{ secrets.TARGET_QUERY }}
+          SYSTEM_PROMPT: ${{ secrets.SYSTEM_PROMPT }}
         run: python bake_site.py
 
-      - name: Deploy Update
+      - name: Commit Static Artifact
         run: |
-          git config --global user.name "ZeroHourBot"
-          git config --global user.email "bot@zerohour.local"
+          git config --global user.name "System"
+          git config --global user.email "system@localhost"
           git add index.html
-          # Only commit if the file actually changed
-          git diff --quiet && git diff --staged --quiet || (git commit -m "INTEL UPDATE: $(date -u)" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "DATA PACKET: $(date -u)" && git push)
