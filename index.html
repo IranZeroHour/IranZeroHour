@@ -3,144 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRAN ZERO HOUR | Tactical Intelligence Feed</title>
+    <title>IRAN ZERO HOUR | Tactical Feed</title>
     <style>
         :root {
-            --bg-color: #05070a;
-            --container-bg: #0d1117;
-            --border-color: #30363d;
-            --text-main: #c9d1d9;
-            --text-dim: #8b949e;
-            --accent-blue: #58a6ff;
-            --accent-red: #f85149;
-            --accent-gold: #d29922;
-            --accent-green: #238636;
+            --bg: #0b0e14;
+            --card-bg: #161b22;
+            --border: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-primary: #238636; /* Tactical Green */
+            --accent-alert: #f85149;   /* Flash Red */
+            --accent-warn: #d29922;    /* Warning Gold */
+            --accent-intel: #58a6ff;   /* Blue */
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', 'Courier New', monospace;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column;
-            align-items: center; min-height: 100vh;
-        }
-
-        /* Scanline CRT Effect */
-        body::before {
-            content: " "; display: block; position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 9999; pointer-events: none;
-            background-size: 100% 2px, 3px 100%;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            margin: 0; line-height: 1.6;
+            display: flex; flex-direction: column; align-items: center;
         }
 
         header {
-            width: 100%; max-width: 1000px; padding: 20px;
-            border-bottom: 2px solid var(--accent-green);
-            display: flex; justify-content: space-between;
-            align-items: center; box-sizing: border-box;
+            width: 100%; max-width: 900px; padding: 40px 20px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            border-bottom: 1px solid var(--border);
         }
 
-        .project-title {
-            font-size: 1.5rem; letter-spacing: 4px;
-            font-weight: bold; color: #fff; margin: 0;
-        }
+        .brand { letter-spacing: 0.2rem; font-weight: 800; }
+        .brand h1 { margin: 0; font-size: 1.2rem; color: #fff; }
+        .brand span { font-size: 0.7rem; color: var(--accent-primary); font-family: monospace; }
 
-        #system-clock {
-            font-family: monospace; color: var(--accent-green);
-            font-size: 1.1rem; letter-spacing: 1px;
-        }
+        #system-clock { font-family: monospace; color: var(--text-secondary); font-size: 0.9rem; }
 
-        main { width: 100%; max-width: 1000px; padding: 20px; box-sizing: border-box; }
+        main { width: 100%; max-width: 900px; padding: 30px 20px; box-sizing: border-box; }
 
         .tactical-entry {
-            background: var(--container-bg); border: 1px solid var(--border-color);
-            margin-bottom: 25px; padding: 20px; border-radius: 4px;
-            border-left: 4px solid var(--accent-green);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 32px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
         }
 
-        .header {
+        .entry-header {
+            background: rgba(48, 54, 61, 0.2);
+            padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; font-family: monospace;
-            border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .datetime { color: var(--text-dim); font-size: 0.9rem; }
-        .location-tag { color: var(--accent-blue); font-weight: bold; text-transform: uppercase; }
-        .severity-badge { padding: 3px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 2px; }
-        .FLASH { background: var(--accent-red); color: white; }
-        .WARNING { background: var(--accent-gold); color: black; }
+        .meta-group { display: flex; gap: 15px; align-items: center; }
+        .datetime { font-family: monospace; color: var(--text-secondary); font-size: 0.85rem; }
+        .location { color: var(--accent-intel); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; }
 
-        .intel-body { line-height: 1.6; font-size: 1rem; margin-bottom: 20px; color: #e6edf3; }
+        .severity-badge {
+            font-size: 0.65rem; font-weight: 900; padding: 4px 12px;
+            border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .FLASH { background: var(--accent-alert); color: #fff; box-shadow: 0 0 10px rgba(248, 81, 73, 0.3); }
+        .WARNING { background: var(--accent-warn); color: #000; }
+
+        .intel-body { padding: 20px; font-size: 1.05rem; color: var(--text-primary); border-bottom: 1px solid var(--border); }
 
         .strategic-analysis {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-            padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 0.85rem;
+            display: grid; grid-template-columns: 1fr 1fr;
+            background: rgba(0,0,0,0.2);
         }
 
-        .iran-impact strong { color: var(--accent-red); display: block; margin-bottom: 5px; }
-        .opposition-impact strong { color: var(--accent-blue); display: block; margin-bottom: 5px; }
+        .analysis-box { padding: 15px 20px; font-size: 0.9rem; }
+        .analysis-box:first-child { border-right: 1px solid var(--border); }
+        .analysis-box strong { 
+            display: block; font-size: 0.7rem; letter-spacing: 1px; 
+            margin-bottom: 8px; text-transform: uppercase;
+        }
+        .iran-impact strong { color: var(--accent-alert); }
+        .opposition-impact strong { color: var(--accent-intel); }
 
-        footer { margin-top: auto; padding: 40px; font-size: 0.7rem; color: var(--text-dim); text-align: center; }
+        footer { padding: 50px; font-size: 0.7rem; color: var(--text-secondary); font-family: monospace; }
     </style>
 </head>
 <body>
 
 <header>
-    <div>
-        <div class="project-title">IRAN ZERO HOUR</div>
-        <div style="font-size: 0.7rem; color: var(--accent-green)">SECURE_COMM_ESTABLISHED // OSINT_FEED</div>
+    <div class="brand">
+        <h1>IRAN ZERO HOUR</h1>
+        <span>SYSTEM_STATUS: ACTIVE // ENCRYPTED_FEED</span>
     </div>
     <div id="system-clock">0000-00-00 00:00:00</div>
 </header>
 
 <main id="intel-container">
-    I can generate some situation reports (SITREPs) based on the search results, but note that the information is limited and may not reflect a complete picture of the very latest events within the last 15 minutes. Also, due to the nature of available information, it's challenging to provide real-time updates.
-
-
-<div>
-    <h3>SITREP: Iran - Protest Crackdown (Reported 6 hours ago)</h3>
-    <p><b>Event:</b> Heavy force was reportedly used against protesters in Borujerd, Lorestan province, including live ammunition and water cannons. Several civilians were allegedly killed and many wounded. Internet shutdowns hinder verification.</p>
-    <p><b>Strategic Implications:</b> Continued suppression of protests indicates the regime's unwillingness to compromise. Use of lethal force risks further escalation and international condemnation. The internet blackout aims to control information flow and suppress dissent, but it also fuels distrust and resentment.</p>
-    <p><b>Counter-Effect:</b> Protesters face significant challenges in organizing and disseminating information. The international community may increase pressure on Iran through sanctions and diplomatic isolation.</p>
-</div>
-
-<div>
-    <h3>SITREP: Iran - Protester Burials Targeted (Reported Jan 21)</h3>
-    <p><b>Event:</b> Security forces allegedly opened fire during burials for slain protesters in Abdanan (Ilam province) and Jahrom (Fars province). In Abdanan, metal pellets injured at least 100, blinding around 50. In Jahrom, live ammunition and metal pellets resulted in at least 14 deaths and 18 blinded.</p>
-    <p><b>Strategic Implications:</b> Targeting mourners demonstrates the regime's intent to instill fear and prevent gatherings, even for funerals. This action is likely to further enrage the population and galvanize resistance.</p>
-    <p><b>Counter-Effect:</b> Such actions risk backfiring, potentially strengthening the resolve of protesters and increasing international scrutiny. Human rights organizations are likely to document these incidents and advocate for accountability.</p>
-</div>
-
-<div>
-    <h3>SITREP: Iran - Hospital and Morgue Crisis (Reported Jan 21)</h3>
-    <p><b>Event:</b> Hospitals and morgues in several Iranian cities are reportedly facing body bag shortages due to the high number of protest-related deaths. Security forces are heavily present at medical facilities, and there are restrictions on releasing bodies and registering information, allegedly to conceal the true death toll.</p>
-    <p><b>Strategic Implications:</b> The regime's attempts to control information and suppress the accurate accounting of casualties highlight its concern over public perception and potential backlash. Limiting access to medical care for injured protesters and controlling the handling of bodies are serious human rights violations.</p>
-    <p><b>Counter-Effect:</b> These actions are likely to fuel further anger and distrust among the population. Independent investigations by international organizations will be crucial to uncover the true scale of the crisis.</p>
-</div>
-
-
-**Disclaimer:** The situation on the ground in Iran is highly dynamic, and access to information is severely restricted. This report is based on limited information available as of the current time and should be interpreted with caution.
-    </main>
+    {content}
+</main>
 
 <footer>
-    &copy; 2026 PROJECT IRAN ZERO HOUR | SYSTEM_STABLE // NO_LEAKS_DETECTED
+    TERMINAL_ECHO: NO_LATENCY_DETECTED // 2026_PROJECT_IZH
 </footer>
 
 <script>
     function updateClock() {
         const now = new Date();
-        const pad = (num) => String(num).padStart(2, '0');
-        
-        const date = now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
-        const time = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-        
-        document.getElementById('system-clock').textContent = date + " " + time;
+        const pad = (n) => String(n).padStart(2, '0');
+        document.getElementById('system-clock').textContent = 
+            `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     }
     setInterval(updateClock, 1000);
-    updateClock(); // Initial call
+    updateClock();
 </script>
 
 </body>
