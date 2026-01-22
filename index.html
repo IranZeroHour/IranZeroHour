@@ -125,58 +125,11 @@
 </div>
 
 <script>
-const timelineData = [
-    { time: "INIT", text: "SYSTEM STANDBY... WAITING FOR UPLINK." }
-];
-</script>
+        const timelineData = [{"time": "22:11 UTC", "text": "[ROUTINE] STRIKE ON IRAN? FORMER NATIONAL SECURITY ADVISER DOUBTS IT"}, {"time": "22:05 UTC", "text": "[ROUTINE] TOP FIVE TAKEAWAYS FROM TRUMP'S INTERVIEW WITH CNBC"}, {"time": "22:00 UTC", "text": "[ROUTINE] HOW VENEZUELA WENT FROM U.S. ALLY TO NATIONAL SECURITY THREAT"}, {"time": "22:00 UTC", "text": "[ROUTINE] THE FASTEST WAY TO STOP IRAN\u2019S KILLERS ... WITHOUT FIRING A SINGLE SHOT"}, {"time": "21:48 UTC", "text": "[ROUTINE] IRANIAN FOREIGN MINISTER CLAIMS ISRAELI SPIES INCITED \u2018MAXIMUM BLOODSHED\u2019 DURING PROTESTS TO GET THE US INVOLVED"}, {"time": "21:46 UTC", "text": "[ROUTINE] IRAN SAYS 3,117 KILLED IN PROTESTS"}];
+        </script>
 <script>
-    // 1. Theme Logic
-    function toggleTheme() {
-        const current = document.body.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', next);
-    }
-
-    // 2. Clock Logic
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('clock').innerText = now.toISOString().slice(11, 16) + ' UTC';
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // 3. Render Logic (The part that was missing!)
-    function renderFeed() {
-        const container = document.getElementById('feed');
-        if (!timelineData || timelineData.length === 0) return;
-
-        // Clear "Init" message if real data exists
-        if (timelineData[0].time !== "INIT") container.innerHTML = '';
-
-        timelineData.forEach(item => {
-            // Detect Type
-            let type = "routine";
-            let text = item.text || "";
-            if (text.includes("[FLASH]")) { type = "flash"; text = text.replace("[FLASH]", "").trim(); }
-            else if (text.includes("[ROUTINE]")) { type = "routine"; text = text.replace("[ROUTINE]", "").trim(); }
-
-            // Create HTML
-            const div = document.createElement('div');
-            div.className = `event ${type}`;
-            div.innerHTML = `
-                <div class="meta">
-                    <span class="time">${item.time}</span>
-                    <span class="tag">${type}</span>
-                </div>
-                <div class="headline">${text}</div>
-            `;
-            container.appendChild(div);
-        });
-    }
-
-    // Run Render
-    renderFeed();
-</script>
+        const timelineData = [{"time": "22:11 UTC", "text": "[ROUTINE] STRIKE ON IRAN? FORMER NATIONAL SECURITY ADVISER DOUBTS IT"}, {"time": "22:05 UTC", "text": "[ROUTINE] TOP FIVE TAKEAWAYS FROM TRUMP'S INTERVIEW WITH CNBC"}, {"time": "22:00 UTC", "text": "[ROUTINE] HOW VENEZUELA WENT FROM U.S. ALLY TO NATIONAL SECURITY THREAT"}, {"time": "22:00 UTC", "text": "[ROUTINE] THE FASTEST WAY TO STOP IRAN\u2019S KILLERS ... WITHOUT FIRING A SINGLE SHOT"}, {"time": "21:48 UTC", "text": "[ROUTINE] IRANIAN FOREIGN MINISTER CLAIMS ISRAELI SPIES INCITED \u2018MAXIMUM BLOODSHED\u2019 DURING PROTESTS TO GET THE US INVOLVED"}, {"time": "21:46 UTC", "text": "[ROUTINE] IRAN SAYS 3,117 KILLED IN PROTESTS"}];
+        </script>
 
 </body>
 </html>
