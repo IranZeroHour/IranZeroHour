@@ -63,18 +63,23 @@ def update_display(processed_data, raw_data):
     with open(TARGET_FILE, 'r', encoding='utf-8') as f:
         html = f.read()
 
-    js_payload = "const timelineData = " + json.dumps(output) + ";"
+    js_payload = f'\n    const timelineData = {json.dumps(output)};\n'
     
-    # Safe Regex Replacement
-    pattern = r'(\s*<script>)([\s\S]*?)(</script>\s*)'
-    new_html = re.sub(
-        pattern, 
-        lambda m: m.group(1) + '\n        ' + js_payload + '\n        ' + m.group(3), 
-        html
-    )
+    # Targeted Regex: Only replaces the content inside the script tag with id="data-core"
+    # This prevents overwriting the main application logic
+    pattern = r'(<script id="data-core">)([\s\S]*?)(</script>)'
     
-    with open(TARGET_FILE, 'w', encoding='utf-8') as f:
-        f.write(new_html)
+    if re.search(pattern, html):
+        new_html = re.sub(
+            pattern, 
+            lambda m: m.group(1) + js_payload + m.group(3), 
+            html
+        )
+        
+        with open(TARGET_FILE, 'w', encoding='utf-8') as f:
+            f.write(new_html)
+    else:
+        print("CRITICAL: Data injection point not found in HTML.")
 
 if __name__ == "__main__":
     raw = get_input()
