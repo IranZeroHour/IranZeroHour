@@ -4,7 +4,6 @@ import requests
 import re
 import google.generativeai as genai
 
-# --- OBFUSCATED CONFIGURATION ---
 NEWS_SOURCE = os.environ.get("NEWS")
 AI_ENGINE = os.environ.get("AI")
 SEARCH_TERM = os.environ.get("QUERY")
@@ -32,19 +31,15 @@ def process_data(raw_data):
     if not raw_data: return []
     
     try:
-        # Configure Gemini
         genai.configure(api_key=AI_ENGINE)
         model = genai.GenerativeModel('gemini-pro')
         
-        # Prepare Data
         data_block = "\n".join([f"- {a['title']}" for a in raw_data])
         full_prompt = f"{INSTRUCTION}\n\nINPUT DATA:\n{data_block}"
         
-        # Generate
         response = model.generate_content(full_prompt)
         content = response.text
         
-        # Clean Markdown
         cleaned = content.replace("```json", "").replace("```", "").strip()
         return json.loads(cleaned)
     except Exception as e:
@@ -65,8 +60,6 @@ def update_display(processed_data, raw_data):
 
     js_payload = f'\n    const timelineData = {json.dumps(output)};\n'
     
-    # Targeted Regex: Only replaces the content inside the script tag with id="data-core"
-    # This prevents overwriting the main application logic
     pattern = r'(<script id="data-core">)([\s\S]*?)(</script>)'
     
     if re.search(pattern, html):
