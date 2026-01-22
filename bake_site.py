@@ -2,12 +2,13 @@ import os
 import json
 import requests
 import re
-from openai import OpenAI
+import google.generativeai as genai
 
-NEWS_SOURCE = os.environ.get("NEWS")     
-AI_ENGINE = os.environ.get("AI")        
-SEARCH_TERM = os.environ.get("QUERY")    
-INSTRUCTION = os.environ.get("SYSTEM")   
+# --- OBFUSCATED CONFIGURATION ---
+NEWS_SOURCE = os.environ.get("NEWS")
+AI_ENGINE = os.environ.get("AI")
+SEARCH_TERM = os.environ.get("QUERY")
+INSTRUCTION = os.environ.get("SYSTEM")
 TARGET_FILE = "index.html"
 
 def get_input():
@@ -16,36 +17,38 @@ def get_input():
         print("Signal lost: Missing configuration.")
         return []
         
+    headers = {'User-Agent': 'ZeroHour/1.0'}
     url = f"https://newsapi.org/v2/everything?q={SEARCH_TERM}&sortBy=publishedAt&pageSize=6&language=en&apiKey={NEWS_SOURCE}"
+    
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         return response.json().get('articles', [])
     except Exception as e:
         print(f"Connection failed: {e}")
         return []
 
 def process_data(raw_data):
-    print("Analyzing pattern...")
+    print("Analyzing pattern (Gemini Core)...")
     if not raw_data: return []
     
-    client = OpenAI(api_key=AI_ENGINE)
-
-    data_block = "\n".join([f"- {a['title']}" for a in raw_data])
-    
     try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": INSTRUCTION},
-                {"role": "user", "content": data_block}
-            ],
-            temperature=0.1
-        )
-        content = response.choices[0].message.content
+        # Configure Gemini
+        genai.configure(api_key=AI_ENGINE)
+        model = genai.GenerativeModel('gemini-pro')
+        
+        # Prepare Data
+        data_block = "\n".join([f"- {a['title']}" for a in raw_data])
+        full_prompt = f"{INSTRUCTION}\n\nINPUT DATA:\n{data_block}"
+        
+        # Generate
+        response = model.generate_content(full_prompt)
+        content = response.text
+        
+        # Clean Markdown
         cleaned = content.replace("```json", "").replace("```", "").strip()
         return json.loads(cleaned)
     except Exception as e:
-        print(f"Analysis failed: {e}")
+        print(f"Analysis failed (Using fallback): {e}")
         return [f"[ROUTINE] {a['title'].upper()}" for a in raw_data]
 
 def update_display(processed_data, raw_data):
@@ -61,8 +64,14 @@ def update_display(processed_data, raw_data):
         html = f.read()
 
     js_payload = "const timelineData = " + json.dumps(output) + ";"
+    
+    # Safe Regex Replacement
     pattern = r'(\s*<script>)([\s\S]*?)(</script>\s*)'
-    new_html = re.sub(pattern, r'\1\n        ' + js_payload + r'\n        \3', html)
+    new_html = re.sub(
+        pattern, 
+        lambda m: m.group(1) + '\n        ' + js_payload + '\n        ' + m.group(3), 
+        html
+    )
     
     with open(TARGET_FILE, 'w', encoding='utf-8') as f:
         f.write(new_html)
