@@ -225,11 +225,8 @@
         <div class="timeline-guide"></div>
         <div id="feed">
             <script>
-                // This variable is overwritten by the GitHub Action
-                const timelineData = [
-                    { time: "INIT", headline: "SYSTEM STARTUP SEQUENCE. WAITING FOR DATA PACKET..." }
-                ];
-            </script>
+        const timelineData = [{"time": "22:11 UTC", "text": "[ROUTINE] STRIKE ON IRAN? FORMER NATIONAL SECURITY ADVISER DOUBTS IT"}, {"time": "22:05 UTC", "text": "[ROUTINE] TOP FIVE TAKEAWAYS FROM TRUMP'S INTERVIEW WITH CNBC"}, {"time": "22:00 UTC", "text": "[ROUTINE] HOW VENEZUELA WENT FROM U.S. ALLY TO NATIONAL SECURITY THREAT"}, {"time": "22:00 UTC", "text": "[ROUTINE] THE FASTEST WAY TO STOP IRAN\u2019S KILLERS ... WITHOUT FIRING A SINGLE SHOT"}, {"time": "21:48 UTC", "text": "[ROUTINE] IRANIAN FOREIGN MINISTER CLAIMS ISRAELI SPIES INCITED \u2018MAXIMUM BLOODSHED\u2019 DURING PROTESTS TO GET THE US INVOLVED"}, {"time": "21:46 UTC", "text": "[ROUTINE] IRAN SAYS 3,117 KILLED IN PROTESTS"}];
+        </script>
             </div>
     </div>
 
@@ -240,66 +237,8 @@
 </div>
 
 <script>
-    // 1. Theme Logic (Auto-detect + Manual Toggle)
-    const storedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
-        document.body.setAttribute('data-theme', 'dark');
-    }
-
-    function toggleTheme() {
-        const current = document.body.getAttribute('data-theme');
-        const newTheme = current === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    }
-
-    // 2. Clock Logic
-    function updateClock() {
-        const now = new Date();
-        const timeString = now.getUTCHours().toString().padStart(2, '0') + ':' +
-                           now.getUTCMinutes().toString().padStart(2, '0') + ':' +
-                           now.getUTCSeconds().toString().padStart(2, '0') + ' UTC';
-        document.getElementById('clock').innerText = timeString;
-    }
-    
-    // 3. Render Logic
-    function renderFeed() {
-        const feedEl = document.getElementById('feed');
-        if (feedEl.getAttribute('data-rendered') === 'true') return;
-
-        if(timelineData.length > 0 && timelineData[0].time !== "INIT") {
-            feedEl.innerHTML = ''; 
-        }
-
-        timelineData.forEach(item => {
-            if(item.time === "INIT") {
-                 feedEl.innerHTML += `
-                    <div class="event" style="opacity: 0.5;">
-                        <div class="meta-data">${item.time}</div>
-                        <div class="headline">${item.headline}</div>
-                    </div>`;
-                 return;
-            }
-
-            const div = document.createElement('div');
-            div.className = 'event';
-            div.innerHTML = `
-                <div class="meta-data">${item.time}</div>
-                <div class="headline">${item.headline}</div>
-            `;
-            feedEl.appendChild(div);
-        });
-        
-        feedEl.setAttribute('data-rendered', 'true');
-    }
-
-    // Initialize
-    setInterval(updateClock, 1000);
-    updateClock();
-    renderFeed();
-</script>
+        const timelineData = [{"time": "22:11 UTC", "text": "[ROUTINE] STRIKE ON IRAN? FORMER NATIONAL SECURITY ADVISER DOUBTS IT"}, {"time": "22:05 UTC", "text": "[ROUTINE] TOP FIVE TAKEAWAYS FROM TRUMP'S INTERVIEW WITH CNBC"}, {"time": "22:00 UTC", "text": "[ROUTINE] HOW VENEZUELA WENT FROM U.S. ALLY TO NATIONAL SECURITY THREAT"}, {"time": "22:00 UTC", "text": "[ROUTINE] THE FASTEST WAY TO STOP IRAN\u2019S KILLERS ... WITHOUT FIRING A SINGLE SHOT"}, {"time": "21:48 UTC", "text": "[ROUTINE] IRANIAN FOREIGN MINISTER CLAIMS ISRAELI SPIES INCITED \u2018MAXIMUM BLOODSHED\u2019 DURING PROTESTS TO GET THE US INVOLVED"}, {"time": "21:46 UTC", "text": "[ROUTINE] IRAN SAYS 3,117 KILLED IN PROTESTS"}];
+        </script>
 
 </body>
 </html>
