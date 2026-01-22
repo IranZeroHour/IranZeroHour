@@ -34,14 +34,13 @@
             padding: 0;
             line-height: 1.4;
             transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
         }
 
         /* --- LAYOUT --- */
         .wrapper {
-            max-width: 900px;
-            margin: 0 auto;
-            border-left: var(--border-thin);
-            border-right: var(--border-thin);
+            width: 100%;
+            /* REMOVED MAX-WIDTH FOR FULL SCREEN */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -71,8 +70,19 @@
         .live-dot { width: 8px; height: 8px; background: var(--alert); border-radius: 50%; display: inline-block; animation: pulse 1s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
 
-        /* --- FEED --- */
-        .feed-container { padding: 40px 24px; flex-grow: 1; position: relative; }
+        /* --- MAIN GRID --- */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 450px; /* Feed gets remaining space, Sidebar gets 450px */
+            flex-grow: 1;
+        }
+
+        /* --- FEED SECTION --- */
+        .feed-container { 
+            padding: 40px 24px; 
+            position: relative; 
+            border-right: var(--border-thick);
+        }
         .timeline-line { position: absolute; left: 29px; top: 0; bottom: 0; width: 1px; background: var(--ink); opacity: 0.2; }
         
         .event { position: relative; margin-bottom: 30px; padding-left: 30px; display: flex; flex-direction: column; }
@@ -89,11 +99,78 @@
         .event.elevated .headline { color: var(--warn); }
         .event.routine .headline { opacity: 0.8; }
 
+        /* --- GLOBAL TARGETS SIDEBAR --- */
+        .global-targets {
+            padding: 40px 24px;
+            background: rgba(125, 125, 125, 0.03);
+        }
+
+        .target-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: var(--border-thin);
+            padding-bottom: 15px;
+        }
+
+        .globe-icon {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+        }
+
+        .target-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .target-item {
+            margin-bottom: 25px;
+            border-left: 2px solid var(--ink);
+            padding-left: 15px;
+        }
+
+        .target-num {
+            font-size: 0.7rem;
+            font-weight: 900;
+            opacity: 0.5;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .target-text-en {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .target-text-fa {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            font-family: Tahoma, 'Arial', sans-serif; /* Better support for Persian script */
+            direction: rtl;
+            display: block;
+        }
+
         footer { border-top: var(--border-thick); padding: 15px 24px; font-size: 0.7rem; opacity: 0.6; display: flex; justify-content: space-between; }
         
         /* Theme Toggle */
         .theme-btn { background: none; border: 1px solid var(--ink); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 0.7rem; padding: 4px 8px; margin-top: 8px; text-transform: uppercase; }
         .theme-btn:hover { background: var(--ink); color: var(--bg); }
+
+        /* Mobile Responsive */
+        @media (max-width: 800px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .feed-container { border-right: none; border-bottom: var(--border-thick); }
+        }
     </style>
 </head>
 <body>
@@ -113,9 +190,54 @@
         </div>
     </header>
 
-    <div class="feed-container">
-        <div class="timeline-line"></div>
-        <div id="feed"></div>
+    <div class="main-grid">
+        <div class="feed-container">
+            <div class="timeline-line"></div>
+            <div id="feed"></div>
+        </div>
+
+        <div class="global-targets">
+            <div class="target-header">
+                <div class="globe-icon">🌐</div>
+                <div>
+                    <div style="font-weight: 900; text-transform: uppercase;">Global Directive</div>
+                    <div style="font-size: 0.7rem; opacity: 0.7;">Action Required</div>
+                </div>
+            </div>
+
+            <ul class="target-list">
+                <li class="target-item">
+                    <span class="target-num">01 // TARGET IRGC</span>
+                    <span class="target-text-en">Cripple the Suppression Machine</span>
+                    <span class="target-text-fa">تضعیف ماشین سرکوب، به‌ویژه هدف‌گیری سپاه پاسداران</span>
+                </li>
+                <li class="target-item">
+                    <span class="target-num">02 // ECONOMIC BLOCKADE</span>
+                    <span class="target-text-en">Freeze Assets & Block Oil Tankers</span>
+                    <span class="target-text-fa">فشار اقتصادی حداکثری با مسدود کردن دارایی‌های رژیم و ناوگان نفت‌کش‌هایش</span>
+                </li>
+                <li class="target-item">
+                    <span class="target-num">03 // OPEN COMMS</span>
+                    <span class="target-text-en">Unrestricted Internet (Starlink)</span>
+                    <span class="target-text-fa">فراهم‌ کردن اینترنت آزاد برای ایران از طریق ابزارهایی مانند استارلینک</span>
+                </li>
+                <li class="target-item">
+                    <span class="target-num">04 // DIPLOMATIC ISOLATION</span>
+                    <span class="target-text-en">Expel Diplomats & Prosecute Criminals</span>
+                    <span class="target-text-fa">اخراج دیپلمات‌های رژیم و پیگرد قانونی جنایتکاران</span>
+                </li>
+                <li class="target-item">
+                    <span class="target-num">05 // HUMAN RIGHTS</span>
+                    <span class="target-text-en">Unconditional Release of Prisoners</span>
+                    <span class="target-text-fa">آزادی بی‌قیدوشرط همه زندانیان سیاسی</span>
+                </li>
+                <li class="target-item">
+                    <span class="target-num">06 // REGIME CHANGE</span>
+                    <span class="target-text-en">Recognize Transitional Government</span>
+                    <span class="target-text-fa">آمادگی برای گذار دموکراتیک و به رسمیت شناختن دولت انتقالی</span>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <footer>
@@ -124,12 +246,61 @@
     </footer>
 </div>
 
+<script id="data-core">
+    const timelineData = [];
+</script>
+
 <script>
-        const timelineData = [{"time": "22:11 UTC", "text": "[ROUTINE] STRIKE ON IRAN? FORMER NATIONAL SECURITY ADVISER DOUBTS IT"}, {"time": "22:05 UTC", "text": "[ROUTINE] TOP FIVE TAKEAWAYS FROM TRUMP'S INTERVIEW WITH CNBC"}, {"time": "22:00 UTC", "text": "[ROUTINE] HOW VENEZUELA WENT FROM U.S. ALLY TO NATIONAL SECURITY THREAT"}, {"time": "22:00 UTC", "text": "[ROUTINE] THE FASTEST WAY TO STOP IRAN\u2019S KILLERS ... WITHOUT FIRING A SINGLE SHOT"}, {"time": "21:48 UTC", "text": "[ROUTINE] IRANIAN FOREIGN MINISTER CLAIMS ISRAELI SPIES INCITED \u2018MAXIMUM BLOODSHED\u2019 DURING PROTESTS TO GET THE US INVOLVED"}, {"time": "21:46 UTC", "text": "[ROUTINE] IRAN SAYS 3,117 KILLED IN PROTESTS"}];
-        </script>
-<script>
-        const timelineData = [{"time": "22:11 UTC", "text": "[ROUTINE] STRIKE ON IRAN? FORMER NATIONAL SECURITY ADVISER DOUBTS IT"}, {"time": "22:05 UTC", "text": "[ROUTINE] TOP FIVE TAKEAWAYS FROM TRUMP'S INTERVIEW WITH CNBC"}, {"time": "22:00 UTC", "text": "[ROUTINE] HOW VENEZUELA WENT FROM U.S. ALLY TO NATIONAL SECURITY THREAT"}, {"time": "22:00 UTC", "text": "[ROUTINE] THE FASTEST WAY TO STOP IRAN\u2019S KILLERS ... WITHOUT FIRING A SINGLE SHOT"}, {"time": "21:48 UTC", "text": "[ROUTINE] IRANIAN FOREIGN MINISTER CLAIMS ISRAELI SPIES INCITED \u2018MAXIMUM BLOODSHED\u2019 DURING PROTESTS TO GET THE US INVOLVED"}, {"time": "21:46 UTC", "text": "[ROUTINE] IRAN SAYS 3,117 KILLED IN PROTESTS"}];
-        </script>
+    // Theme Toggle
+    function toggleTheme() {
+        const body = document.body;
+        const current = body.getAttribute('data-theme');
+        body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    // Clock
+    function updateClock() {
+        const now = new Date();
+        const utc = now.toUTCString().slice(17, 22);
+        document.getElementById('clock').innerText = utc + ' UTC';
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Render Feed
+    function renderFeed() {
+        const container = document.getElementById('feed');
+        if (!timelineData || timelineData.length === 0) {
+            container.innerHTML = '<div class="event"><span class="headline">AWAITING SIGNAL...</span></div>';
+            return;
+        }
+
+        container.innerHTML = timelineData.map(item => {
+            // Parse Text: Expecting "[TAG] HEADLINE"
+            const match = item.text.match(/^\[(.*?)\]\s*(.*)/);
+            const tag = match ? match[1] : 'UNK';
+            const headline = match ? match[2] : item.text;
+            
+            // Determine Class
+            let urgency = 'routine';
+            if (tag.includes('ALERT') || tag.includes('WAR') || tag.includes('STRIKE')) urgency = 'flash';
+            if (tag.includes('WARNING') || tag.includes('THREAT')) urgency = 'elevated';
+
+            return `
+                <div class="event ${urgency}">
+                    <div class="meta">
+                        <span>${item.time}</span>
+                        <span class="tag">${tag}</span>
+                    </div>
+                    <div class="headline">${headline}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Init
+    window.onload = renderFeed;
+</script>
 
 </body>
 </html>
