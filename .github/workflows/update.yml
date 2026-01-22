@@ -25,7 +25,6 @@ jobs:
 
       - name: Execute Logic
         env:
-          # Mapping generic secret names to environment variables
           NEWS: ${{ secrets.NEWS }}
           AI: ${{ secrets.AI }}
           QUERY: ${{ secrets.QUERY }}
@@ -37,4 +36,9 @@ jobs:
           git config --global user.name "System"
           git config --global user.email "sys@local"
           git add index.html
-          git diff --quiet && git diff --staged --quiet || (git commit -m "STATE UPDATE: $(date -u)" && git push)
+          # Check for changes before attempting push
+          if ! git diff --quiet --staged; then
+            git commit -m "STATE UPDATE: $(date -u)"
+            git pull --rebase origin main
+            git push
+          fi
